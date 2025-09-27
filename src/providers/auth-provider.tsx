@@ -35,18 +35,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // If Supabase is not configured, skip auth setup
+    if (!supabase) {
+      console.warn('⚠️  Supabase not configured - authentication disabled')
+      setLoading(false)
+      return
+    }
+
     // Get initial session
     const getInitialSession = async () => {
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession()
+      try {
+        if (!supabase) return
 
-      if (error) {
-        console.error('Error getting session:', error)
-      } else {
-        setSession(session)
-        setUser(session?.user ?? null)
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession()
+
+        if (error) {
+          console.error('Error getting session:', error)
+        } else {
+          setSession(session)
+          setUser(session?.user ?? null)
+        }
+      } catch (error) {
+        console.error('Error getting initial session:', error)
       }
       setLoading(false)
     }
@@ -54,24 +67,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
     getInitialSession()
 
     // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
+    if (supabase) {
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange(async (event, session) => {
+        setSession(session)
+        setUser(session?.user ?? null)
+        setLoading(false)
 
-      // Handle user creation - create profile if needed
-      if (event === 'SIGNED_IN' && session?.user) {
-        await createUserProfile(session.user)
-      }
-    })
+        // Handle user creation - create profile if needed
+        if (event === 'SIGNED_IN' && session?.user) {
+          await createUserProfile(session.user)
+        }
+      })
 
-    return () => subscription.unsubscribe()
+      return () => subscription.unsubscribe()
+    }
   }, [])
 
   // Create user profile if it doesn't exist
   const createUserProfile = async (user: User) => {
+    if (!supabase) return
+
     try {
       const { error } = await supabase.from('profiles').upsert({
         id: user.id,
@@ -90,6 +107,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   const signIn = async (email: string, password: string) => {
+    if (!supabase) {
+      return { error: { message: 'Supabase not configured' } }
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -98,6 +119,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   const signUp = async (email: string, password: string, fullName?: string) => {
+    if (!supabase) {
+      return { error: { message: 'Supabase not configured' } }
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -111,11 +136,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   const signOut = async () => {
+    if (!supabase) {
+      return { error: { message: 'Supabase not configured' } }
+    }
+
     const { error } = await supabase.auth.signOut()
     return { error }
   }
 
   const resetPassword = async (email: string) => {
+    if (!supabase) {
+      return { error: { message: 'Supabase not configured' } }
+    }
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth/reset-password`,
     })

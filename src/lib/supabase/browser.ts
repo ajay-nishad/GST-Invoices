@@ -6,20 +6,27 @@
 import { createClient } from '@supabase/supabase-js'
 import { clientEnv } from '@/env.client'
 
+// Check if we have valid Supabase credentials
+const hasValidCredentials =
+  clientEnv.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co' &&
+  clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY !== 'placeholder_anon_key'
+
 // Create Supabase client for client-side usage
-export const supabase = createClient(
-  clientEnv.NEXT_PUBLIC_SUPABASE_URL,
-  clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  {
-    auth: {
-      // Configure auth options
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true,
-      flowType: 'pkce',
-    },
-  }
-)
+export const supabase = hasValidCredentials
+  ? createClient(
+      clientEnv.NEXT_PUBLIC_SUPABASE_URL,
+      clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        auth: {
+          // Configure auth options
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true,
+          flowType: 'pkce',
+        },
+      }
+    )
+  : null
 
 // Database types (you can generate these from your Supabase schema)
 export type Database = {

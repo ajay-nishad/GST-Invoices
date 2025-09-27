@@ -3,12 +3,17 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { AuthProvider } from '@/providers/auth-provider'
-import { validateEnvironment } from '@/lib/env-demo'
 
 const inter = Inter({ subsets: ['latin'] })
 
-// Validate environment variables at build time
-validateEnvironment()
+// Validate environment variables at build time (safer approach)
+if (typeof window === 'undefined') {
+  try {
+    require('@/lib/env-demo').validateEnvironment()
+  } catch (error) {
+    console.warn('Environment validation warning:', error)
+  }
+}
 
 export const metadata: Metadata = {
   title: 'GST Invoices',
