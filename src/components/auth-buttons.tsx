@@ -1,38 +1,36 @@
 'use client'
 
-import { useUser } from '@/providers/auth-provider'
-import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { SignOutButton } from '@/components/sign-out-button'
+import { useUser } from '@/providers/auth-provider'
 
 export function AuthButtons() {
   const { user, loading } = useUser()
 
   if (loading) {
-    return (
-      <div className="flex space-x-2">
-        <Button disabled>Loading...</Button>
-      </div>
-    )
+    return <Button disabled>Loading...</Button>
   }
 
   if (user) {
     return (
-      <div className="flex space-x-2">
-        <Link href="/dashboard">
-          <Button>Dashboard</Button>
-        </Link>
+      <div className="flex gap-2">
+        <Button asChild>
+          <Link href="/dashboard">Dashboard</Link>
+        </Button>
+        <SignOutButton variant="outline" />
       </div>
     )
   }
 
   return (
-    <div className="flex space-x-2">
-      <Link href="/auth/login">
-        <Button variant="outline">Sign In</Button>
-      </Link>
-      <Link href="/auth/signup">
-        <Button>Sign Up</Button>
-      </Link>
+    <div className="flex gap-2">
+      <Button asChild>
+        <Link href="/auth/signin">Sign In</Link>
+      </Button>
+      <Button asChild variant="outline">
+        <Link href="/auth/signup">Sign Up</Link>
+      </Button>
     </div>
   )
 }

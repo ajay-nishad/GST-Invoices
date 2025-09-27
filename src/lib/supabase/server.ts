@@ -1,25 +1,44 @@
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import type { Database } from '@/types/db'
 
-export function createClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!supabaseUrl || !supabaseServiceKey) {
-    console.warn('Supabase credentials not configured')
+export async function createClient() {
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    console.warn('Supabase environment variables not configured')
     return null
   }
 
-  return createSupabaseClient<Database>(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  })
+  const cookieStore = await cookies()
+
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
+      },
+    }
+  )
 }
 
 export async function getUser() {
-  const supabase = createClient()
+  const supabase = await createClient()
   if (!supabase) return null
 
   try {
@@ -27,7 +46,10 @@ export async function getUser() {
       data: { user },
       error,
     } = await supabase.auth.getUser()
-    if (error) throw error
+    if (error) {
+      console.error('Error getting user:', error)
+      return null
+    }
     return user
   } catch (error) {
     console.error('Error getting user:', error)
@@ -36,7 +58,7 @@ export async function getUser() {
 }
 
 export async function getUserWithProfile() {
-  const supabase = createClient()
+  const supabase = await createClient()
   if (!supabase) return null
 
   try {
@@ -44,8 +66,10 @@ export async function getUserWithProfile() {
       data: { user },
       error,
     } = await supabase.auth.getUser()
-    if (error) throw error
-    if (!user) return null
+    if (error || !user) {
+      console.error('Error getting user:', error)
+      return null
+    }
 
     const { data: profile, error: profileError } = await supabase
       .from('users')
@@ -58,7 +82,10 @@ export async function getUserWithProfile() {
       return { user, profile: null }
     }
 
-    return { user, profile }
+    return {
+      user,
+      profile: profile as Database['public']['Tables']['users']['Row'],
+    }
   } catch (error) {
     console.error('Error getting user with profile:', error)
     return null

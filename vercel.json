@@ -1,0 +1,47 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm ci",
+  "framework": "nextjs",
+  "regions": ["bom1"],
+  "functions": {
+    "src/app/api/**/*.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/export/**/*.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/razorpay/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/razorpay/webhook",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "POST"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, X-Razorpay-Signature"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/razorpay/webhook",
+      "destination": "/api/razorpay/webhook"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

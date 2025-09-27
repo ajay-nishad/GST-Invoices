@@ -31,6 +31,13 @@ const envSchema = z.object({
     .optional()
     .default('placeholder_key_secret'),
 
+  // Email Configuration (Resend)
+  RESEND_API_KEY: z
+    .string()
+    .min(1, 'Resend API key is required')
+    .optional()
+    .default('placeholder_resend_key'),
+
   // Optional variables with defaults
   NODE_ENV: z
     .enum(['development', 'production', 'test'])
@@ -73,6 +80,8 @@ export const clientEnv = {
 
 // Server-side environment variables (all variables)
 export const serverEnv = env
+
+// Utility function to check if we're in development
 
 // Utility function to check if we're in development
 export const isDevelopment = env.NODE_ENV === 'development'

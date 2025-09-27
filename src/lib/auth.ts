@@ -1,81 +1,112 @@
-/**
- * Server-side authentication utilities for React Server Components
- * Provides type-safe auth helpers for server components and API routes
- */
-
-import {
-  getUser,
-  getUserWithProfile,
-  requireAuth,
-  requireAuthWithProfile,
-} from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import type { User } from '@supabase/supabase-js'
 
-/**
- * Get current user in server components
- * Returns null if not authenticated
- */
-export async function getCurrentUser() {
-  return await getUser()
-}
-
-/**
- * Get current user with profile in server components
- * Returns null if not authenticated
- */
-export async function getCurrentUserWithProfile() {
-  return await getUserWithProfile()
-}
-
-/**
- * Require authentication in server components
- * Redirects to login if not authenticated
- */
-export async function requireUser(redirectTo: string = '/auth/login') {
-  const user = await requireAuth()
-  return user
-}
-
-/**
- * Require authentication with profile in server components
- * Redirects to login if not authenticated
- */
-export async function requireUserWithProfile(
-  redirectTo: string = '/auth/login'
-) {
-  const result = await requireAuthWithProfile()
-  return result
-}
-
-/**
- * Check if user is authenticated (for conditional rendering)
- */
-export async function isAuthenticated() {
-  const user = await getUser()
-  return !!user
-}
-
-/**
- * Redirect to login if not authenticated
- */
-export async function redirectIfNotAuthenticated(
-  redirectTo: string = '/auth/login'
-) {
-  const user = await getUser()
-  if (!user) {
-    redirect(redirectTo)
+export async function requireUser(): Promise<User> {
+  const supabase = await createClient()
+  if (!supabase) {
+    redirect('/auth/signin?error=configuration')
   }
-  return user
+
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
+
+    if (error || !user) {
+      redirect('/auth/signin?error=unauthorized')
+    }
+
+    return user
+  } catch (error) {
+    console.error('Error getting user:', error)
+    redirect('/auth/signin?error=unauthorized')
+  }
 }
 
-/**
- * Redirect to dashboard if authenticated (for login/register pages)
- */
-export async function redirectIfAuthenticated(
-  redirectTo: string = '/dashboard'
-) {
-  const user = await getUser()
-  if (user) {
-    redirect(redirectTo)
+export async function requireUserWithProfile() {
+  const supabase = await createClient()
+  if (!supabase) {
+    redirect('/auth/signin?error=configuration')
+  }
+
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
+
+    if (error || !user) {
+      redirect('/auth/signin?error=unauthorized')
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError) {
+      console.error('Error getting profile:', profileError)
+      return { user, profile: null }
+    }
+
+    return { user, profile }
+  } catch (error) {
+    console.error('Error getting user with profile:', error)
+    redirect('/auth/signin?error=unauthorized')
+  }
+}
+
+export async function getUser(): Promise<User | null> {
+  const supabase = await createClient()
+  if (!supabase) return null
+
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
+    if (error) {
+      console.error('Error getting user:', error)
+      return null
+    }
+    return user
+  } catch (error) {
+    console.error('Error getting user:', error)
+    return null
+  }
+}
+
+export async function getUserWithProfile() {
+  const supabase = await createClient()
+  if (!supabase) return null
+
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
+    if (error || !user) {
+      console.error('Error getting user:', error)
+      return null
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError) {
+      console.error('Error getting profile:', profileError)
+      return { user, profile: null }
+    }
+
+    return { user, profile }
+  } catch (error) {
+    console.error('Error getting user with profile:', error)
+    return null
   }
 }

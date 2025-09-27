@@ -1,276 +1,604 @@
-# GST Invoices
+# GST Invoices 📋
 
-A modern GST invoice management system built with Next.js 15, TypeScript, Tailwind CSS, and Supabase.
+> **Professional GST invoice management made simple** — Streamline your business invoicing with modern technology
 
-## Features
+**🚀 Modern GST Invoice Management Platform**
 
-- ⚡ **Next.js 15** with App Router
-- 🔷 **TypeScript** for type safety
-- 🎨 **Tailwind CSS** for styling
-- 🧩 **shadcn/ui** for beautiful components
-- 🎭 **Framer Motion** for animations
-- 🌙 **Dark/Light theme** support
-- 🔐 **Supabase** for authentication and database
-- 💰 **Razorpay** integration for payments
-- 📊 **GST compliance** with HSN/SAC codes
-- 🛡️ **Row Level Security** for data isolation
-- 📏 **ESLint** for code linting
-- 💅 **Prettier** for code formatting
-- 🐕 **Husky** for git hooks
-- 🔍 **Type checking** with TypeScript
+---
 
-## Getting Started
+## 📸 Screenshots
+
+### Dashboard Overview
+
+_[Screenshot placeholder: Dashboard with revenue stats, recent invoices, and quick actions]_
+
+![Dashboard](./docs/images/dashboard.png)
+
+### Invoice Creation
+
+_[Screenshot placeholder: Invoice form with line items, GST calculations, and customer details]_
+
+![Invoice Creation](./docs/images/invoice-creation.png)
+
+### PDF Templates
+
+_[GIF placeholder: Animated showcase of different invoice templates (Classic, Modern, Minimal)]_
+
+![PDF Templates](./docs/images/pdf-templates.gif)
+
+### Email Integration
+
+_[Screenshot placeholder: Email dialog with template selection and custom message]_
+
+![Email Integration](./docs/images/email-integration.png)
+
+---
+
+## ✨ What This Does
+
+**One-liner**: A complete GST-compliant invoice management system that handles everything from customer management to payment tracking, with beautiful PDF generation and email automation.
+
+**Perfect for**: Small businesses, freelancers, and enterprises who need professional GST invoicing without the complexity.
+
+---
+
+## 🎯 Key Features
+
+### 📊 **Business Management**
+
+- Multi-business support with complete isolation
+- GST registration details and compliance
+- Professional invoice templates (Classic, Modern, Minimal)
+- Automated invoice numbering and tracking
+
+### 🧾 **GST Compliance**
+
+- HSN/SAC code management
+- Automatic CGST/SGST/IGST calculations
+- Cess support for applicable items
+- GSTR-1 export functionality
+
+### 💰 **Payment Processing**
+
+- Razorpay integration for online payments
+- Multiple payment methods (UPI, Cards, Net Banking)
+- Payment tracking and reconciliation
+- Subscription management
+
+### 📧 **Email Automation**
+
+- Send invoices directly via email
+- Multiple email templates
+- Delivery tracking and retry functionality
+- Custom message support
+
+### 🔐 **Security & Privacy**
+
+- Row Level Security (RLS) on all data
+- Complete user isolation
+- Guest mode for quick invoice creation
+- Secure authentication with Supabase
+
+### 📱 **Modern Experience**
+
+- Responsive design for all devices
+- Dark/Light theme support
+- Real-time data synchronization
+- Keyboard shortcuts for power users
+
+---
+
+## 🛠️ Tech Stack
+
+| Category           | Technology                 |
+| ------------------ | -------------------------- |
+| **Framework**      | Next.js 15 with App Router |
+| **Language**       | TypeScript                 |
+| **Styling**        | Tailwind CSS + shadcn/ui   |
+| **Database**       | Supabase (PostgreSQL)      |
+| **Authentication** | Supabase Auth              |
+| **Payments**       | Razorpay                   |
+| **Email**          | Resend                     |
+| **PDF Generation** | @react-pdf/renderer        |
+| **Animations**     | Framer Motion              |
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 18+
-- npm or yarn
-- Supabase account
-- Razorpay account (optional)
+- **Node.js** 18+
+- **npm** or **yarn**
+- **Supabase** account
+- **Razorpay** account (optional, for payments)
+- **Resend** account (optional, for emails)
 
-### Installation
-
-1. Clone the repository:
-
-```bash
-git clone <repository-url>
-cd gst-invoices
-```
-
-2. Install dependencies:
+### 1. **Setup**
 
 ```bash
+# Clone the repository
+git clone https://github.com/ajay-nishad/GST-Invoices.git
+cd GST-Invoices
+
+# Install dependencies
 npm install
 ```
 
-3. Set up environment variables:
+### 2. **Environment Configuration**
 
 ```bash
+# Copy environment template
 cp .env.example .env.local
 ```
 
-Edit `.env.local` with your credentials:
+Add your credentials to `.env.local`:
 
-```bash
-# Supabase
+```env
+# Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
-# Razorpay (optional)
+# Payment Integration (Optional)
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+
+# Email Integration (Optional)
+RESEND_API_KEY=your_resend_api_key
 ```
 
-4. Set up the database:
+### 3. **Database Migration**
 
 ```bash
-# Apply database migrations
+# Apply all migrations in sequence
+npm run db:migrate
+
+# Or apply manually:
 psql -h your-db-host -U postgres -d your-db-name -f supabase/migrations/001_initial_schema.sql
 psql -h your-db-host -U postgres -d your-db-name -f supabase/migrations/002_rls_policies.sql
 psql -h your-db-host -U postgres -d your-db-name -f supabase/migrations/003_views_and_functions.sql
+psql -h your-db-host -U postgres -d your-db-name -f supabase/migrations/005_invoice_tables.sql
+psql -h your-db-host -U postgres -d your-db-name -f supabase/migrations/006_invoice_rls_policies.sql
+psql -h your-db-host -U postgres -d your-db-name -f supabase/migrations/007_email_logs.sql
+psql -h your-db-host -U postgres -d your-db-name -f supabase/migrations/008_recurrences.sql
+psql -h your-db-host -U postgres -d your-db-name -f supabase/migrations/009_user_preferences.sql
 
 # Apply RLS policies
 psql -h your-db-host -U postgres -d your-db-name -f supabase/policies/000_apply_all_policies.sql
 ```
 
-5. Seed the database with demo data:
+### 4. **Seed Demo Data**
 
 ```bash
+# Create demo data for testing
 npm run db:seed
+
+# This creates:
+# - Demo user: demo@gstinvoices.com
+# - Sample business with GST details
+# - 4 customers (individuals and businesses)
+# - 5 products/services with HSN codes
+# - 4 sample invoices with different statuses
+# - Payment records and subscription
 ```
 
-6. Run the development server:
+### 5. **Run Development Server**
 
 ```bash
+# Start the development server
 npm run dev
+
+# Open your browser
+open http://localhost:3000
 ```
 
-7. Open [http://localhost:3000](http://localhost:3000) in your browser.
+### 6. **Deploy to Production**
 
-## Available Scripts
+> 📖 **For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md)**
+
+#### **Quick Deployment (Vercel)**
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy to production
+vercel --prod
+
+# Configure environment variables in Vercel dashboard
+```
+
+#### **Environment Variables Required**
+
+```bash
+# Essential (Required for basic functionality)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Optional (For full functionality)
+RAZORPAY_KEY_ID=your_razorpay_key_id          # For payments
+RAZORPAY_KEY_SECRET=your_razorpay_secret      # For payments
+RESEND_API_KEY=your_resend_api_key           # For emails
+```
+
+#### **Supabase Setup**
+
+```bash
+# Link to production project
+supabase link --project-ref your-production-ref
+
+# Push database migrations
+supabase db push
+
+# Apply RLS policies
+supabase db reset --linked
+```
+
+#### **Webhook URLs (Production)**
+
+Configure these URLs in your service dashboards:
+
+- **Razorpay Webhook**: `https://your-domain.com/api/razorpay/webhook`
+- **Supabase Auth Callback**: `https://your-domain.com/auth/callback`
+
+#### **Post-Deployment Checklist**
+
+- [ ] All environment variables configured
+- [ ] Database migrations applied
+- [ ] Authentication working
+- [ ] Payment webhooks configured (if using payments)
+- [ ] Email delivery working (if using emails)
+- [ ] SSL certificate active
+- [ ] Domain configured
+
+#### **Alternative Deployment Options**
+
+**Docker Deployment**
+
+```bash
+# Build and run with Docker
+docker build -t gst-invoices .
+docker run -p 3000:3000 --env-file .env.local gst-invoices
+```
+
+**Manual Deployment**
+
+```bash
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+# Link to production project
+
+supabase link --project-ref your-production-ref
+
+# Push database migrations
+
+supabase db push
+
+# Apply RLS policies
+
+supabase db reset --linked
+
+````
+
+#### **Webhook URLs (Production)**
+Configure these URLs in your service dashboards:
+
+- **Razorpay Webhook**: `https://your-domain.com/api/razorpay/webhook`
+- **Supabase Auth Callback**: `https://your-domain.com/auth/callback`
+
+#### **Post-Deployment Checklist**
+- [ ] All environment variables configured
+- [ ] Database migrations applied
+- [ ] Authentication working
+- [ ] Payment webhooks configured (if using payments)
+- [ ] Email delivery working (if using emails)
+- [ ] SSL certificate active
+- [ ] Domain configured
+
+#### **Alternative Deployment Options**
+
+**Docker Deployment**
+```bash
+# Build and run with Docker
+docker build -t gst-invoices .
+docker run -p 3000:3000 --env-file .env.local gst-invoices
+````
+
+**Manual Deployment**
+
+```bash
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+---
+
+## 📚 Available Scripts
 
 ### Development
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run type-check` - Run TypeScript type checking
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run type-check   # Run TypeScript checking
+```
 
 ### Code Quality
 
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
-- `npm run format` - Format code with Prettier
-- `npm run format:check` - Check code formatting
+```bash
+npm run lint         # Run ESLint
+npm run lint:fix     # Fix ESLint issues
+npm run format       # Format code with Prettier
+npm run format:check # Check code formatting
+```
 
-### Database
-
-- `npm run db:seed` - Seed database with demo data
-- `npm run db:seed:dev` - Seed database for development
-- `npm run db:clear` - Clear demo data
-- `npm run db:reset` - Clear and re-seed demo data
-
-## Database Seeding
-
-The application includes a comprehensive seeding system for quick testing and development.
-
-### Demo Data Created
-
-- **Demo User**: `demo@gstinvoices.com`
-- **Business**: Tech Solutions Pvt Ltd
-- **Customers**: 4 customers (individual and business)
-- **Items**: 5 products/services with GST compliance
-- **Invoices**: 4 sample invoices with different statuses
-- **Payments**: 2 payment records
-- **Subscription**: Professional Plan
-
-### Seeding Commands
+### Database Management
 
 ```bash
-# Seed with demo data
-npm run db:seed
-
-# Clear demo data
-npm run db:clear
-
-# Reset (clear + seed)
-npm run db:reset
+npm run db:seed      # Seed with demo data
+npm run db:clear     # Clear demo data
+npm run db:reset     # Clear and re-seed
+npm run db:migrate   # Apply all migrations
 ```
 
-For detailed information, see [scripts/README.md](scripts/README.md).
+### Testing
 
-## Project Structure
-
-```
-src/
-├── app/                 # Next.js App Router pages
-│   ├── api/            # API routes
-│   ├── auth/           # Authentication pages
-│   ├── dashboard/      # Dashboard pages
-│   ├── globals.css     # Global styles with Tailwind
-│   ├── layout.tsx      # Root layout with providers
-│   └── page.tsx        # Home page
-├── components/         # React components
-│   ├── ui/            # shadcn/ui components
-│   ├── auth-buttons.tsx
-│   ├── login-form.tsx
-│   ├── signup-form.tsx
-│   └── theme-provider.tsx
-├── lib/               # Utility functions
-│   ├── supabase/      # Supabase clients
-│   ├── auth.ts        # Authentication utilities
-│   ├── config.ts      # Configuration
-│   ├── database.ts    # Database operations
-│   ├── razorpay.ts    # Razorpay integration
-│   └── utils.ts       # Tailwind class utilities
-├── providers/         # React context providers
-│   └── auth-provider.tsx
-├── hooks/             # Custom React hooks
-└── types/             # TypeScript type definitions
-    └── db.ts          # Database types
-
-supabase/
-├── migrations/        # Database migrations
-│   ├── 001_initial_schema.sql
-│   ├── 002_rls_policies.sql
-│   ├── 003_views_and_functions.sql
-│   └── 004_sample_data.sql
-├── policies/          # Row Level Security policies
-│   ├── 000_apply_all_policies.sql
-│   ├── 001_enable_rls.sql
-│   └── ... (individual policy files)
-└── README.md          # Database documentation
-
-scripts/
-├── seed.ts            # Database seeding script
-├── clear-demo-data.ts # Clear demo data script
-└── README.md          # Seeding documentation
+```bash
+npm run test         # Run unit tests
+npm run test:e2e     # Run end-to-end tests
+npm run test:all     # Run all tests
 ```
 
-## Database Schema
+---
 
-The application uses a comprehensive database schema with:
+## 🏗️ Project Structure
+
+```
+GST-Invoices/
+├── 📁 src/
+│   ├── 📁 app/                    # Next.js App Router
+│   │   ├── �� (app)/             # Authenticated app pages
+│   │   │   ├── 📄 dashboard/      # Dashboard with stats
+│   │   │   ├── 📄 invoices/       # Invoice management
+│   │   │   ├── 📄 customers/      # Customer management
+│   │   │   ├── 📄 items/          # Product/service catalog
+│   │   │   ├── 📄 businesses/     # Business profiles
+│   │   │   ├── 📄 analytics/      # Reports and analytics
+│   │   │   ├── 📄 email-logs/     # Email tracking
+│   │   │   └── 📄 settings/       # User preferences
+│   │   ├── 📁 api/                # API routes
+│   │   │   ├── 📄 invoices/       # Invoice operations
+│   │   │   ├── 📄 export/         # PDF/Excel export
+│   │   │   ├── 📄 razorpay/       # Payment processing
+│   │   │   └── 📄 subscription/   # Subscription management
+│   │   ├── 📁 auth/               # Authentication pages
+│   │   └── 📁 guest/              # Guest invoice creation
+│   ├── 📁 components/             # React components
+│   │   ├── 📁 ui/                 # shadcn/ui components
+│   │   ├── 📁 invoices/           # Invoice-specific components
+│   │   ├── 📁 customers/          # Customer management
+│   │   ├── 📁 dashboard/          # Dashboard components
+│   │   ├── 📁 layout/             # Layout components
+│   │   └── 📁 common/             # Shared components
+│   ├── 📁 lib/                    # Utility functions
+│   │   ├── 📁 actions/            # Server actions
+│   │   ├── 📁 supabase/           # Database clients
+│   │   ├── 📁 schemas/            # Zod validation schemas
+│   │   ├── 📄 auth.ts             # Authentication utilities
+│   │   ├── 📄 razorpay.ts         # Payment integration
+│   │   └── 📄 utils.ts            # Helper functions
+│   ├── 📁 hooks/                  # Custom React hooks
+│   ├── 📁 pdf/                    # PDF templates
+│   └── 📁 types/                  # TypeScript definitions
+├── 📁 supabase/
+│   ├── 📁 migrations/             # Database schema
+│   └── 📁 policies/               # Row Level Security
+├── 📁 e2e/                        # End-to-end tests
+├── 📄 package.json
+└── 📄 README.md
+```
+
+---
+
+## 🗄️ Database Schema
 
 ### Core Tables
 
-- **users** - User profiles and authentication
-- **subscriptions** - Subscription management
-- **businesses** - Business information and GST details
-- **customers** - Customer data with billing/shipping
-- **items** - Product/service catalog with HSN/SAC codes
-- **invoices** - Invoice records with calculated totals
-- **invoice_items** - Line items with detailed tax calculations
-- **payments** - Payment tracking with multiple methods
+- **users** — User profiles and authentication
+- **subscriptions** — Plan management and billing
+- **businesses** — Business information with GST details
+- **customers** — Customer data with billing/shipping addresses
+- **items** — Product/service catalog with HSN/SAC codes
+- **invoices** — Invoice records with calculated totals
+- **invoice_items** — Line items with detailed tax calculations
+- **payments** — Payment tracking with multiple methods
+- **email_logs** — Email delivery tracking and status
 
 ### Security Features
 
-- **Row Level Security (RLS)** on all tables
-- **Complete data isolation** between users
-- **Guest user protection** (no database access)
-- **Automatic security** for views and functions
+- ✅ **Row Level Security (RLS)** on all tables
+- ✅ **Complete data isolation** between users
+- ✅ **Guest user protection** (no database access)
+- ✅ **Automatic security** for views and functions
 
-### GST Compliance
+---
 
-- **HSN/SAC codes** for all items
-- **CGST/SGST/IGST** calculations
-- **Cess support** for specific items
-- **Proper tax rate** configurations
+## 🔐 Authentication Flow
 
-## Tech Stack
+1. **Sign Up/Sign In** via Supabase Auth
+2. **Email verification** for new accounts
+3. **Session management** with automatic refresh
+4. **Protected routes** with server-side validation
+5. **User profile** creation and management
 
-- **Framework**: Next.js 15
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **UI Components**: shadcn/ui
-- **Animations**: Framer Motion
-- **Theme**: next-themes
-- **Database**: Supabase (PostgreSQL)
-- **Authentication**: Supabase Auth
-- **Payments**: Razorpay
-- **Linting**: ESLint
-- **Formatting**: Prettier
-- **Git Hooks**: Husky
+---
 
-## Development
+## 💳 Payment Integration
 
-The project uses:
+### Razorpay Features
 
-- **Absolute imports** with `@/*` alias
-- **Pre-commit hooks** for linting and formatting
-- **Type checking** on build
-- **Modern CSS** with Tailwind utilities
-- **Type-safe database** operations
-- **Environment validation** with Zod
-- **Comprehensive testing** with demo data
+- Multiple payment methods (UPI, Cards, Net Banking, Wallets)
+- Automatic payment status updates
+- Invoice-linked payment tracking
+- Subscription billing for premium features
+- Webhook handling for real-time updates
 
-## Authentication
+---
 
-The application uses Supabase Auth with:
+## 📧 Email System
 
-- **Email/password** authentication
-- **Row Level Security** for data isolation
-- **Session management** with React context
-- **Protected routes** with server-side validation
-- **User profile** management
+### Resend Integration
 
-## Payment Integration
+- Professional invoice delivery
+- Multiple email templates
+- Delivery status tracking
+- Automatic retry for failed emails
+- Custom message support
 
-Razorpay integration includes:
+---
 
-- **Multiple payment methods** (UPI, cards, net banking)
-- **Payment tracking** and status updates
-- **Invoice generation** with payment links
-- **Subscription management** for recurring payments
+## 🎨 Customization
 
-## Contributing
+### Themes
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
+- Built-in dark/light mode
+- Custom color schemes
+- Responsive design tokens
 
-## License
+### Invoice Templates
 
-ISC
+- **Classic** — Traditional business layout
+- **Modern** — Contemporary design with colors
+- **Minimal** — Clean and simple format
+
+### Branding
+
+- Custom business logos
+- Personalized color schemes
+- Custom email templates
+
+---
+
+## 🧪 Testing
+
+### Unit Tests
+
+```bash
+npm run test         # Run all unit tests
+npm run test:watch   # Watch mode for development
+npm run test:coverage # Generate coverage report
+```
+
+### End-to-End Tests
+
+```bash
+npm run test:e2e     # Run Playwright tests
+npm run test:e2e:ui  # Run with UI mode
+```
+
+### Test Coverage
+
+- ✅ Authentication flows
+- ✅ Invoice creation and management
+- ✅ Payment processing
+- ✅ Email functionality
+- ✅ PDF generation
+- ✅ Database operations
+
+---
+
+## 📈 Performance
+
+### Optimizations
+
+- **Server-side rendering** for fast initial loads
+- **Static generation** for public pages
+- **Image optimization** with Next.js
+- **Database indexing** for quick queries
+- **Caching strategies** for frequently accessed data
+
+### Monitoring
+
+- Built-in error boundaries
+- Performance metrics tracking
+- Database query optimization
+- Real-time error reporting
+
+---
+
+## 🔧 Environment Variables
+
+| Variable                        | Description               | Required    |
+| ------------------------------- | ------------------------- | ----------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL      | ✅          |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key    | ✅          |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Supabase service role key | ✅          |
+| `RAZORPAY_KEY_ID`               | Razorpay key ID           | ⚠️ Optional |
+| `RAZORPAY_KEY_SECRET`           | Razorpay key secret       | ⚠️ Optional |
+| `RESEND_API_KEY`                | Resend API key for emails | ⚠️ Optional |
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these steps:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+### Development Guidelines
+
+- Follow TypeScript best practices
+- Write tests for new features
+- Update documentation as needed
+- Follow the existing code style
+
+---
+
+## 📞 Support
+
+- 📧 **Email**: support@gstinvoices.com
+- 🐛 **Issues**: [GitHub Issues](https://github.com/ajay-nishad/GST-Invoices/issues)
+- 📖 **Documentation**: [Wiki](https://github.com/ajay-nishad/GST-Invoices/wiki)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/ajay-nishad/GST-Invoices/discussions)
+
+---
+
+## 📄 License
+
+This project is licensed under the **ISC License** - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **Next.js** team for the amazing framework
+- **Supabase** for backend-as-a-service
+- **Tailwind CSS** for utility-first styling
+- **shadcn/ui** for beautiful components
+- **Razorpay** for payment processing
+- **Resend** for email delivery
+
+---
+
+<div align="center">
+
+**Made with ❤️ for the business community**
+
+[⭐ Star this repo](https://github.com/ajay-nishad/GST-Invoices) • [🐛 Report Bug](https://github.com/ajay-nishad/GST-Invoices/issues) • [💡 Request Feature](https://github.com/ajay-nishad/GST-Invoices/issues)
+
+</div>

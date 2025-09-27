@@ -32,6 +32,43 @@ export interface RazorpayPayment {
   created_at: number
 }
 
+export interface RazorpayPlan {
+  id: string
+  item: {
+    name: string
+    description: string
+    amount: number
+    currency: string
+  }
+  period: string
+  interval: number
+  created_at: number
+}
+
+export interface RazorpaySubscription {
+  id: string
+  plan_id: string
+  status: string
+  current_start: number
+  current_end: number
+  ended_at: number | null
+  quantity: number
+  notes: Record<string, any>
+  charge_at: number
+  start_at: number
+  end_at: number
+  auth_attempts: number
+  total_count: number
+  paid_count: number
+  customer_notify: boolean
+  created_at: number
+  expire_by: number
+  short_url: string
+  has_scheduled_changes: boolean
+  change_scheduled_at: number | null
+  remaining_count: number
+}
+
 // Utility functions for Razorpay operations
 export const razorpayUtils = {
   /**
@@ -52,6 +89,49 @@ export const razorpayUtils = {
   },
 
   /**
+   * Create a subscription plan
+   */
+  async createPlan(
+    name: string,
+    amount: number,
+    currency: string = 'INR',
+    interval: number = 1,
+    period: 'monthly' | 'daily' | 'weekly' | 'yearly' = 'monthly'
+  ) {
+    const options = {
+      period,
+      interval,
+      item: {
+        name,
+        description: `${name} Plan`,
+        amount: amount * 100, // Razorpay expects amount in paise
+        currency,
+      },
+    }
+
+    return await razorpay.plans.create(options)
+  },
+
+  /**
+   * Create a subscription
+   */
+  async createSubscription(
+    planId: string,
+    customerId: string,
+    notes?: Record<string, any>
+  ) {
+    const options = {
+      plan_id: planId,
+      customer_id: customerId,
+      total_count: 12, // 12 months
+      quantity: 1,
+      notes: notes || {},
+    }
+
+    return await razorpay.subscriptions.create(options)
+  },
+
+  /**
    * Verify payment signature
    */
   verifyPaymentSignature(
@@ -69,6 +149,19 @@ export const razorpayUtils = {
   },
 
   /**
+   * Verify webhook signature
+   */
+  verifyWebhookSignature(body: string, signature: string) {
+    const crypto = require('crypto')
+    const expectedSignature = crypto
+      .createHmac('sha256', serverEnv.RAZORPAY_KEY_SECRET)
+      .update(body)
+      .digest('hex')
+
+    return expectedSignature === signature
+  },
+
+  /**
    * Get order details
    */
   async getOrder(orderId: string) {
@@ -80,5 +173,19 @@ export const razorpayUtils = {
    */
   async getPayment(paymentId: string) {
     return await razorpay.payments.fetch(paymentId)
+  },
+
+  /**
+   * Get subscription details
+   */
+  async getSubscription(subscriptionId: string) {
+    return await razorpay.subscriptions.fetch(subscriptionId)
+  },
+
+  /**
+   * Cancel subscription
+   */
+  async cancelSubscription(subscriptionId: string) {
+    return await razorpay.subscriptions.cancel(subscriptionId)
   },
 }

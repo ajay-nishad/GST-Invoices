@@ -584,6 +584,68 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        user_preferences: {
+          Row: {
+            id: string
+            user_id: string
+            default_tax_rate: number
+            default_currency: string
+            default_invoice_template: string
+            default_payment_terms: string
+            default_notes: string | null
+            default_terms_conditions: string | null
+            invoice_number_prefix: string
+            invoice_number_start: number
+            auto_generate_invoice_number: boolean
+            email_notifications: boolean
+            payment_reminders: boolean
+            invoice_updates: boolean
+            theme: string
+            language: string
+            created_at: string
+            updated_at: string
+          }
+          Insert: {
+            id?: string
+            user_id: string
+            default_tax_rate?: number
+            default_currency?: string
+            default_invoice_template?: string
+            default_payment_terms?: string
+            default_notes?: string | null
+            default_terms_conditions?: string | null
+            invoice_number_prefix?: string
+            invoice_number_start?: number
+            auto_generate_invoice_number?: boolean
+            email_notifications?: boolean
+            payment_reminders?: boolean
+            invoice_updates?: boolean
+            theme?: string
+            language?: string
+            created_at?: string
+            updated_at?: string
+          }
+          Update: {
+            id?: string
+            user_id?: string
+            default_tax_rate?: number
+            default_currency?: string
+            default_invoice_template?: string
+            default_payment_terms?: string
+            default_notes?: string | null
+            default_terms_conditions?: string | null
+            invoice_number_prefix?: string
+            invoice_number_start?: number
+            auto_generate_invoice_number?: boolean
+            email_notifications?: boolean
+            payment_reminders?: boolean
+            invoice_updates?: boolean
+            theme?: string
+            language?: string
+            created_at?: string
+            updated_at?: string
+          }
+        }
       }
     }
     Views: {

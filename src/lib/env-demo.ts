@@ -1,81 +1,25 @@
-/**
- * Demonstration of environment variable usage
- * This file shows how to properly import and use environment variables
- * in different contexts (client vs server)
- */
+// This file demonstrates how to use environment variables in different contexts
 
-// ✅ CORRECT: Client-side usage (only public variables)
-import { clientEnv } from '@/env.client'
+// Client-side usage (browser)
+export function clientSideExample() {
+  // These will be available in the browser
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
 
-// ✅ CORRECT: Server-side usage (all variables including secrets)
-import { serverEnv } from '@/env.server'
-
-// ✅ CORRECT: Using the configuration utility
-import { config } from '@/lib/config'
-
-// ✅ CORRECT: Using Supabase client (client-side)
-import { supabase } from '@/lib/supabase/browser'
-
-// ✅ CORRECT: Using Razorpay (server-side only)
-import { razorpay } from '@/lib/razorpay'
-
-/**
- * Example: Client-side component
- * Only use clientEnv or config.clientEnv
- */
-export function getClientConfig() {
-  // ✅ This is safe to use in client components
-  const supabaseUrl = clientEnv.NEXT_PUBLIC_SUPABASE_URL
-
-  // ✅ This is also safe
-  const supabaseUrlFromConfig = config.supabase.url
-
-  return {
-    supabaseUrl,
-    supabaseUrlFromConfig,
-  }
+  console.log('Client-side environment variables:')
+  console.log('Supabase URL:', supabaseUrl)
+  console.log('Supabase Anon Key:', supabaseAnonKey ? 'Set' : 'Not set')
+  console.log('Razorpay Key ID:', razorpayKeyId ? 'Set' : 'Not set')
 }
 
-/**
- * Example: Server-side API route or server component
- * Can use serverEnv or config for all variables
- */
-export async function serverAction() {
-  // ✅ This is safe to use in server-side code
-  const razorpayKeyId = serverEnv.RAZORPAY_KEY_ID
-  const supabaseServiceKey = serverEnv.SUPABASE_SERVICE_ROLE_KEY
+// Server-side usage (API routes, Server Components)
+export function serverSideExample() {
+  // These are only available on the server
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET
 
-  // ✅ This is also safe
-  const razorpayKeyIdFromConfig = config.razorpay.keyId
-
-  // Example usage
-  const order = await razorpay.orders.create({
-    amount: 1000,
-    currency: 'INR',
-    receipt: 'test_receipt',
-  })
-
-  return { order }
+  console.log('Server-side environment variables:')
+  console.log('Supabase Service Key:', supabaseServiceKey ? 'Set' : 'Not set')
+  console.log('Razorpay Key Secret:', razorpayKeySecret ? 'Set' : 'Not set')
 }
-
-/**
- * Example: Environment validation
- * This will throw an error if required variables are missing
- */
-export function validateEnvironment() {
-  try {
-    // This will validate all environment variables at startup
-    const env = serverEnv
-    console.log('✅ Environment variables validated successfully')
-    return true
-  } catch (error) {
-    console.error('❌ Environment validation failed:', error)
-    return false
-  }
-}
-
-// ❌ WRONG: Don't do this in client-side code
-// const secretKey = process.env.RAZORPAY_KEY_SECRET // This will be undefined in client
-
-// ❌ WRONG: Don't do this in client-side code
-// const serviceKey = serverEnv.SUPABASE_SERVICE_ROLE_KEY // This will cause build errors

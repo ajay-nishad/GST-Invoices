@@ -1,119 +1,17 @@
-/**
- * Supabase client for browser/client-side usage
- * Uses public environment variables only
- */
+import { createBrowserClient } from '@supabase/ssr'
+import type { Database } from '@/types/db'
 
-import { createClient } from '@supabase/supabase-js'
-import { clientEnv } from '@/env.client'
-
-// Check if we have valid Supabase credentials
-const hasValidCredentials =
-  clientEnv.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co' &&
-  clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY !== 'placeholder_anon_key'
-
-// Create Supabase client for client-side usage
-export const supabase = hasValidCredentials
-  ? createClient(
-      clientEnv.NEXT_PUBLIC_SUPABASE_URL,
-      clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        auth: {
-          // Configure auth options
-          autoRefreshToken: true,
-          persistSession: true,
-          detectSessionInUrl: true,
-          flowType: 'pkce',
-        },
-      }
-    )
-  : null
-
-// Database types (you can generate these from your Supabase schema)
-export type Database = {
-  public: {
-    Tables: {
-      profiles: {
-        Row: {
-          id: string
-          email: string
-          full_name: string | null
-          avatar_url: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id: string
-          email: string
-          full_name?: string | null
-          avatar_url?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          email?: string
-          full_name?: string | null
-          avatar_url?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      invoices: {
-        Row: {
-          id: string
-          user_id: string
-          invoice_number: string
-          client_name: string
-          client_email: string | null
-          amount: number
-          tax_amount: number
-          total_amount: number
-          status: 'draft' | 'sent' | 'paid' | 'overdue'
-          due_date: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          invoice_number: string
-          client_name: string
-          client_email?: string | null
-          amount: number
-          tax_amount: number
-          total_amount: number
-          status?: 'draft' | 'sent' | 'paid' | 'overdue'
-          due_date?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          invoice_number?: string
-          client_name?: string
-          client_email?: string | null
-          amount?: number
-          tax_amount?: number
-          total_amount?: number
-          status?: 'draft' | 'sent' | 'paid' | 'overdue'
-          due_date?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-      }
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      [_ in never]: never
-    }
-    Enums: {
-      [_ in never]: never
-    }
+export function createClient() {
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    console.warn('Supabase environment variables not configured')
+    return null
   }
-}
 
-// Export typed client
-export type SupabaseClient = typeof supabase
+  return createBrowserClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  )
+}
