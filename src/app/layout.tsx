@@ -4,6 +4,8 @@ import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { EnhancedToastProvider } from '@/components/ui/enhanced-toast-provider'
 import { AuthProvider } from '@/providers/auth-provider'
+import { ReduxProvider } from '@/providers/redux-provider'
+import { ReduxAuthProvider } from '@/providers/redux-auth-provider'
 import { ErrorBoundary } from '@/components/common/error-boundary'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -35,9 +37,13 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <AuthProvider>
-              <ErrorBoundary>{children}</ErrorBoundary>
-            </AuthProvider>
+            <ReduxProvider>
+              <AuthProvider>
+                <ReduxAuthProvider>
+                  <ErrorBoundary>{children}</ErrorBoundary>
+                </ReduxAuthProvider>
+              </AuthProvider>
+            </ReduxProvider>
             <EnhancedToastProvider />
           </ThemeProvider>
         </ErrorBoundary>
