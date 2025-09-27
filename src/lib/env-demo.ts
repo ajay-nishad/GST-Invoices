@@ -14,7 +14,7 @@ import { serverEnv } from '@/env.server'
 import { config } from '@/lib/config'
 
 // ✅ CORRECT: Using Supabase client (client-side)
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase/browser'
 
 // ✅ CORRECT: Using Razorpay (server-side only)
 import { razorpay } from '@/lib/razorpay'
