@@ -34,23 +34,21 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        {/* <ErrorBoundary> */}
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <ReduxProvider>
-            <AuthProvider>
-              <ReduxAuthProvider>
-                <ErrorBoundary>{children}</ErrorBoundary>
-              </ReduxAuthProvider>
-            </AuthProvider>
-          </ReduxProvider>
-          <EnhancedToastProvider />
-        </ThemeProvider>
-        {/* </ErrorBoundary> */}
+        <ErrorBoundary>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ReduxProvider>
+              <AuthProvider>
+                <ReduxAuthProvider>{children}</ReduxAuthProvider>
+              </AuthProvider>
+            </ReduxProvider>
+            <EnhancedToastProvider />
+          </ThemeProvider>
+        </ErrorBoundary>
       </body>
     </html>
   )
