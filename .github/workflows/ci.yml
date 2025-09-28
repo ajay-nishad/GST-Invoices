@@ -59,7 +59,7 @@ jobs:
   e2e-tests:
     name: E2E Tests
     runs-on: ubuntu-latest
-    environment: ci
+    environment: development
 
     services:
       postgres:
@@ -93,38 +93,26 @@ jobs:
 
       - name: Setup test environment
         run: |
-          echo "NEXT_PUBLIC_SUPABASE_URL=${{ vars.NEXT_PUBLIC_SUPABASE_URL }}" >> .env.test.local
-          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" >> .env.test.local
-          echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> .env.test.local
-          echo "RAZORPAY_KEY_ID=${{ vars.RAZORPAY_KEY_ID }}" >> .env.test.local
-          echo "RAZORPAY_KEY_SECRET=${{ secrets.RAZORPAY_KEY_SECRET }}" >> .env.test.local
-          echo "RAZORPAY_WEBHOOK_SECRET=${{ secrets.RAZORPAY_WEBHOOK_SECRET }}" >> .env.test.local
-          echo "NODE_ENV=${{ vars.NODE_ENV }}" >> .env.test.local
-          echo "PORT=${{ vars.PORT }}" >> .env.test.local
-
-      - name: Build application
-        run: npm run build
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          RAZORPAY_KEY_ID: ${{ vars.RAZORPAY_KEY_ID }}
-          RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
-          RAZORPAY_WEBHOOK_SECRET: ${{ secrets.RAZORPAY_WEBHOOK_SECRET }}
-          NODE_ENV: ${{ vars.NODE_ENV }}
-          PORT: ${{ vars.PORT }}
+          echo "NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321" >> .env.test.local
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=test-anon-key" >> .env.test.local
+          echo "SUPABASE_SERVICE_ROLE_KEY=test-service-key" >> .env.test.local
+          echo "RAZORPAY_KEY_ID=test-key" >> .env.test.local
+          echo "RAZORPAY_KEY_SECRET=test-secret" >> .env.test.local
+          echo "RAZORPAY_WEBHOOK_SECRET=test-webhook-secret" >> .env.test.local
+          echo "NODE_ENV=test" >> .env.test.local
+          echo "PORT=3000" >> .env.test.local
 
       - name: Run E2E tests
         run: npm run test:e2e
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          RAZORPAY_KEY_ID: ${{ vars.RAZORPAY_KEY_ID }}
-          RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
-          RAZORPAY_WEBHOOK_SECRET: ${{ secrets.RAZORPAY_WEBHOOK_SECRET }}
-          NODE_ENV: ${{ vars.NODE_ENV }}
-          PORT: ${{ vars.PORT }}
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key
+          SUPABASE_SERVICE_ROLE_KEY: test-service-key
+          RAZORPAY_KEY_ID: test-key
+          RAZORPAY_KEY_SECRET: test-secret
+          RAZORPAY_WEBHOOK_SECRET: test-webhook-secret
+          NODE_ENV: test
+          PORT: 3000
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
@@ -138,7 +126,7 @@ jobs:
     name: Build Check
     runs-on: ubuntu-latest
     needs: [lint-and-typecheck, unit-tests]
-    environment: ci
+    environment: development
 
     steps:
       - name: Checkout code
