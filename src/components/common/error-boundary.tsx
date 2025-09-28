@@ -57,7 +57,7 @@ export function ErrorBoundary({
   fallback,
   onError,
 }: ErrorBoundaryProps) {
-  const handleError = (error: Error, errorInfo: { componentStack: string }) => {
+  const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
     console.error('ErrorBoundary caught an error:', error, errorInfo)
     onError?.(error, errorInfo)
   }

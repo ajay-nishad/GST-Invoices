@@ -88,7 +88,7 @@ export function GuestInvoiceForm({ isGuest = true }: GuestInvoiceFormProps) {
     } else {
       setCustomers(savedCustomers)
     }
-  }, [actions, state.business])
+  }, [state.business])
 
   const handleSaveDraft = useCallback(async () => {
     try {
