@@ -1,21 +1,25 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  // outputFileTracingRoot: process.cwd(), // Removed hardcoded path for production
-  experimental: {
-    optimizePackageImports: ['lucide-react'],
-  },
-  // Enable static generation for better performance
-  output: 'standalone',
+  // Enable static generation for better performance (only in production)
+  ...(process.env.NODE_ENV === 'production' && { output: 'standalone' }),
+
   // Image optimization
   images: {
     formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 31536000, // 1 year
+    minimumCacheTTL: process.env.NODE_ENV === 'production' ? 31536000 : 60, // 1 year in prod, 1 min in dev
   },
-  // Compression
-  compress: true,
-  // Headers for better caching
+
+  // Compression (only in production)
+  compress: process.env.NODE_ENV === 'production',
+
+  // Better source maps for development debugging
+  productionBrowserSourceMaps: process.env.NODE_ENV === 'development',
+
+  // Headers for better caching (environment-aware)
   async headers() {
+    const isProd = process.env.NODE_ENV === 'production'
+
     return [
       {
         source: '/(.*)',
@@ -47,7 +51,9 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, s-maxage=60, stale-while-revalidate=300',
+            value: isProd
+              ? 'public, s-maxage=60, stale-while-revalidate=300'
+              : 'no-cache, no-store, must-revalidate',
           },
         ],
       },
@@ -56,7 +62,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            value: isProd ? 'public, max-age=31536000, immutable' : 'no-cache',
           },
         ],
       },

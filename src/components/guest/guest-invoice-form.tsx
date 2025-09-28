@@ -177,13 +177,13 @@ export function GuestInvoiceForm({ isGuest = true }: GuestInvoiceFormProps) {
 
   // Auto-save draft every 30 seconds
   useEffect(() => {
-    if (state.isDirty && state.items.length > 0) {
+    if (state.items.length > 0) {
       const timer = setTimeout(() => {
         handleSaveDraft()
       }, 30000)
       return () => clearTimeout(timer)
     }
-  }, [state.isDirty, state.items, handleSaveDraft])
+  }, [state.items, handleSaveDraft])
 
   // Keyboard shortcuts
   useKeyboardShortcuts([
@@ -225,13 +225,7 @@ export function GuestInvoiceForm({ isGuest = true }: GuestInvoiceFormProps) {
         </div>
 
         <div className="flex items-center space-x-4">
-          {state.isDirty && (
-            <Badge variant="outline" className="text-orange-600">
-              <Clock className="h-3 w-3 mr-1" />
-              Unsaved changes
-            </Badge>
-          )}
-
+          {/* Remove the isDirty indicator since guest state doesn't have it */}
           {state.lastSaved && (
             <div className="text-sm text-gray-500">
               Last saved: {state.lastSaved.toLocaleTimeString()}

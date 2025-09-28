@@ -15,7 +15,11 @@ export const metadata: Metadata = {
   description: 'A modern GST invoice management system with snappy UX',
   keywords: ['GST', 'Invoice', 'Billing', 'Tax', 'Business'],
   authors: [{ name: 'GST Invoices Team' }],
-  viewport: 'width=device-width, initial-scale=1',
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'white' },
     { media: '(prefers-color-scheme: dark)', color: 'black' },
@@ -30,23 +34,23 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ErrorBoundary>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <ReduxProvider>
-              <AuthProvider>
-                <ReduxAuthProvider>
-                  <ErrorBoundary>{children}</ErrorBoundary>
-                </ReduxAuthProvider>
-              </AuthProvider>
-            </ReduxProvider>
-            <EnhancedToastProvider />
-          </ThemeProvider>
-        </ErrorBoundary>
+        {/* <ErrorBoundary> */}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ReduxProvider>
+            <AuthProvider>
+              <ReduxAuthProvider>
+                <ErrorBoundary>{children}</ErrorBoundary>
+              </ReduxAuthProvider>
+            </AuthProvider>
+          </ReduxProvider>
+          <EnhancedToastProvider />
+        </ThemeProvider>
+        {/* </ErrorBoundary> */}
       </body>
     </html>
   )
