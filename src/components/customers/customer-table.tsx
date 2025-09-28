@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Search,
@@ -82,7 +82,13 @@ export function CustomerTable({
     async (page = 1, searchTerm = search) => {
       try {
         setLoading(true)
-        const result = await getCustomers(searchTerm, page, 10)
+
+        // Add a small delay to show loading state, then fetch
+        const [result] = await Promise.all([
+          getCustomers(searchTerm, page, 10),
+          new Promise((resolve) => setTimeout(resolve, 100)), // Minimum loading time for UX
+        ])
+
         setCustomers(result.data)
         setTotalPages(result.totalPages)
         setTotal(result.total)
@@ -137,11 +143,14 @@ export function CustomerTable({
     fetchCustomers(1, search)
   }, [fetchCustomers, search])
 
-  const handleSearch = (value: string) => {
-    setSearch(value)
-    onSearchChange?.(value)
-    setCurrentPage(1)
-  }
+  const handleSearch = useCallback(
+    (value: string) => {
+      setSearch(value)
+      onSearchChange?.(value)
+      setCurrentPage(1)
+    },
+    [onSearchChange]
+  )
 
   const handleEdit = (customer: Customer) => {
     setEditingCustomer(customer)
@@ -175,9 +184,12 @@ export function CustomerTable({
     setEditingCustomer(null)
   }
 
-  const handlePageChange = (page: number) => {
-    fetchCustomers(page, search)
-  }
+  const handlePageChange = useCallback(
+    (page: number) => {
+      fetchCustomers(page, search)
+    },
+    [fetchCustomers, search]
+  )
 
   if (loading) {
     return <LoadingSpinner />

@@ -1,5 +1,5 @@
-import { GuestInvoiceBuilder } from '@/components/guest/guest-invoice-builder'
+import { redirect } from 'next/navigation'
 
 export default function GuestPage() {
-  return <GuestInvoiceBuilder />
+  redirect('/auth/signin')
 }

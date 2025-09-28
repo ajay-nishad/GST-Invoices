@@ -13,6 +13,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
+    "db:check": "node scripts/check-database.js",
+    "db:migrate": "node scripts/apply-migrations.js",
     "db:seed": "tsx scripts/seed.ts",
     "db:seed:dev": "NODE_ENV=development tsx scripts/seed.ts",
     "db:clear": "tsx scripts/clear-demo-data.ts",

@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { useUser } from '@/providers/auth-provider'
+import { useState } from 'react'
 import {
   LayoutDashboard,
   Building2,
@@ -15,6 +16,7 @@ import {
   Receipt,
   X,
   Mail,
+  Loader2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
@@ -78,6 +80,14 @@ const navigation = [
 export function AppSidebar({ open, onClose }: AppSidebarProps) {
   const pathname = usePathname()
   const { user } = useUser()
+  const [loadingItem, setLoadingItem] = useState<string | null>(null)
+
+  const handleNavClick = (itemName: string) => {
+    setLoadingItem(itemName)
+    onClose()
+    // Reset loading state after navigation starts
+    setTimeout(() => setLoadingItem(null), 2000)
+  }
 
   const SidebarContent = () => (
     <div className="flex h-full flex-col">
@@ -93,28 +103,36 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
       <nav className="flex flex-1 flex-col px-4 py-4 space-y-1">
         {navigation.map((item) => {
           const isActive = pathname === item.href
+          const isLoading = loadingItem === item.name
+          const Icon = isLoading ? Loader2 : item.icon
+
           return (
             <Link
               key={item.name}
               href={item.href}
-              onClick={onClose}
+              prefetch={true}
+              onClick={() => handleNavClick(item.name)}
               className={cn(
-                'group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors',
+                'group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200',
                 isActive
                   ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
-                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900',
+                isLoading && 'opacity-70'
               )}
             >
-              <item.icon
+              <Icon
                 className={cn(
                   'mr-3 h-5 w-5 flex-shrink-0',
                   isActive
                     ? 'text-indigo-500'
-                    : 'text-gray-400 group-hover:text-gray-500'
+                    : 'text-gray-400 group-hover:text-gray-500',
+                  isLoading && 'animate-spin'
                 )}
               />
               <div className="flex-1">
-                <div className="font-medium">{item.name}</div>
+                <div className="font-medium">
+                  {isLoading ? 'Loading...' : item.name}
+                </div>
                 <div className="text-xs text-gray-500">{item.description}</div>
               </div>
             </Link>
@@ -146,10 +164,20 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
   )
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side="left" className="w-80 p-0">
-        <SidebarContent />
-      </SheetContent>
-    </Sheet>
+    <>
+      {/* Desktop Sidebar */}
+      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
+        <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white border-r border-gray-200">
+          <SidebarContent />
+        </div>
+      </div>
+
+      {/* Mobile Sidebar */}
+      <Sheet open={open} onOpenChange={onClose}>
+        <SheetContent side="left" className="w-80 p-0 lg:hidden">
+          <SidebarContent />
+        </SheetContent>
+      </Sheet>
+    </>
   )
 }

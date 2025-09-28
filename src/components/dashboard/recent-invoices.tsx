@@ -82,7 +82,7 @@ export function RecentInvoices({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Recent Invoices</CardTitle>
-        <Link href="/dashboard/invoices">
+        <Link href="/invoices">
           <Button variant="outline" size="sm">
             View All
           </Button>

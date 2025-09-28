@@ -75,7 +75,7 @@ export async function POST(
         user_id: user.id,
         invoice_id: invoiceId,
         recipient_email: recipientEmail,
-        recipient_name: recipientName || invoice.customers.name,
+        recipient_name: recipientName || invoice.customers.customer_name,
         subject: `Invoice ${invoice.invoice_number} from ${invoice.businesses.business_name}`,
         email_type: 'invoice',
         status: 'pending',

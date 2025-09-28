@@ -1,6 +1,8 @@
 import { cache } from 'react'
 import { createClient } from './supabase/server'
 import { unstable_cache } from 'next/cache'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '@/types/db'
 
 // React cache for server components
 export const getCachedUser = cache(async () => {
@@ -18,11 +20,8 @@ export const getCachedUser = cache(async () => {
 
 // Next.js cache with revalidation for businesses
 export const getCachedBusinesses = unstable_cache(
-  async (userId: string) => {
-    const supabase = await createClient()
-    if (!supabase) throw new Error('Database connection failed')
-
-    const { data, error } = await (supabase as any)
+  async (userId: string, supabase: SupabaseClient<Database>) => {
+    const { data, error } = await supabase
       .from('businesses')
       .select('*')
       .eq('user_id', userId)
@@ -147,8 +146,8 @@ export const getCachedInvoices = unstable_cache(
       .select(
         `
         *,
-        businesses!inner(name, gst_number),
-        customers!inner(name, email)
+        businesses!inner(business_name, gst_number),
+        customers!inner(customer_name, email)
       `,
         { count: 'exact' }
       )
@@ -158,7 +157,7 @@ export const getCachedInvoices = unstable_cache(
     // Add search filter
     if (search) {
       query = query.or(
-        `invoice_number.ilike.%${search}%,businesses.name.ilike.%${search}%,customers.name.ilike.%${search}%`
+        `invoice_number.ilike.%${search}%,businesses.business_name.ilike.%${search}%,customers.customer_name.ilike.%${search}%`
       )
     }
 

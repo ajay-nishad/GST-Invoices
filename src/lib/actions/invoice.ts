@@ -266,8 +266,8 @@ export async function getInvoices(search?: string, page = 1, limit = 10) {
     .select(
       `
       *,
-      businesses!inner(name, gst_number),
-      customers!inner(name, email)
+      businesses!inner(business_name, gst_number),
+      customers!inner(customer_name, email)
     `,
       { count: 'exact' }
     )
@@ -277,7 +277,7 @@ export async function getInvoices(search?: string, page = 1, limit = 10) {
   // Add search filter
   if (search) {
     query = query.or(
-      `invoice_number.ilike.%${search}%,businesses.name.ilike.%${search}%,customers.name.ilike.%${search}%`
+      `invoice_number.ilike.%${search}%,businesses.business_name.ilike.%${search}%,customers.customer_name.ilike.%${search}%`
     )
   }
 

@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { requireUser } from '@/lib/auth'
+import { createClient } from '@/lib/supabase/server'
 import { StatsCard } from '@/components/dashboard/stats-card'
 import { QuickActions } from '@/components/dashboard/quick-actions'
 import { RecentInvoices } from '@/components/dashboard/recent-invoices'
@@ -7,15 +8,19 @@ import { StatsSkeleton, CardSkeleton } from '@/components/ui/skeletons'
 import { ErrorBoundary } from '@/components/common/error-boundary'
 import { DollarSign, FileText, Clock, Users } from 'lucide-react'
 import { getDashboardStats, getRecentInvoices } from './dashboard-data'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '@/types/db'
 
 // Enable ISR with 5-minute revalidation
 export const revalidate = 300
 
-// Enable static generation
-export const dynamic = 'force-static'
-
 export default async function DashboardPage() {
   const user = await requireUser()
+  const supabase = await createClient()
+
+  if (!supabase) {
+    throw new Error('Database connection failed')
+  }
 
   return (
     <div className="space-y-6">
@@ -30,7 +35,7 @@ export default async function DashboardPage() {
       {/* Stats Cards */}
       <ErrorBoundary>
         <Suspense fallback={<StatsSkeleton count={4} />}>
-          <DashboardStats userId={user.id} />
+          <DashboardStats userId={user.id} supabase={supabase} />
         </Suspense>
       </ErrorBoundary>
 
@@ -40,7 +45,7 @@ export default async function DashboardPage() {
 
         <ErrorBoundary>
           <Suspense fallback={<CardSkeleton lines={5} />}>
-            <RecentInvoicesData userId={user.id} />
+            <RecentInvoicesData userId={user.id} supabase={supabase} />
           </Suspense>
         </ErrorBoundary>
       </div>
@@ -48,8 +53,14 @@ export default async function DashboardPage() {
   )
 }
 
-async function DashboardStats({ userId }: { userId: string }) {
-  const stats = await getDashboardStats(userId)
+async function DashboardStats({
+  userId,
+  supabase,
+}: {
+  userId: string
+  supabase: SupabaseClient<Database>
+}) {
+  const stats = await getDashboardStats(userId, supabase)
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -97,8 +108,14 @@ async function DashboardStats({ userId }: { userId: string }) {
   )
 }
 
-async function RecentInvoicesData({ userId }: { userId: string }) {
-  const recentInvoices = await getRecentInvoices(userId)
+async function RecentInvoicesData({
+  userId,
+  supabase,
+}: {
+  userId: string
+  supabase: SupabaseClient<Database>
+}) {
+  const recentInvoices = await getRecentInvoices(userId, supabase)
 
   return <RecentInvoices invoices={recentInvoices} />
 }

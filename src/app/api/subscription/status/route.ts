@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get user's active subscription
+    // Check if subscriptions table exists and get user's active subscription
     const { data: subscription, error } = await (supabase as any)
       .from('subscriptions')
       .select('*')
@@ -31,13 +31,31 @@ export async function GET(request: NextRequest) {
       .limit(1)
       .single()
 
-    if (error && error.code !== 'PGRST116') {
-      // PGRST116 = no rows returned
-      console.error('Database error:', error)
-      return NextResponse.json(
-        { error: 'Failed to fetch subscription' },
-        { status: 500 }
-      )
+    if (error) {
+      // Handle specific error cases
+      if (error.code === 'PGRST116') {
+        // No rows returned - user has no active subscription
+        return NextResponse.json({
+          subscription: null,
+        })
+      } else if (error.code === 'PGRST205') {
+        // Table not found - subscriptions table doesn't exist
+        console.error(
+          'Subscriptions table not found. Database migrations may not be applied.'
+        )
+        return NextResponse.json({
+          subscription: null,
+          warning:
+            'Subscription feature not available - database schema incomplete',
+        })
+      } else {
+        // Other database errors
+        console.error('Database error:', error)
+        return NextResponse.json(
+          { error: 'Failed to fetch subscription' },
+          { status: 500 }
+        )
+      }
     }
 
     return NextResponse.json({

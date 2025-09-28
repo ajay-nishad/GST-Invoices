@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import { requireUser } from '@/lib/auth'
 import { getCachedBusinesses } from '@/lib/cache'
+import { createClient } from '@/lib/supabase/server'
 import { PageHeader } from '@/components/common/page-header'
 import { BusinessesClient } from './businesses-client'
 import { BusinessSkeleton } from './business-skeleton'
@@ -29,7 +30,10 @@ export default async function BusinessesPage() {
 }
 
 async function BusinessesData({ userId }: { userId: string }) {
-  const businesses = await getCachedBusinesses(userId)
+  const supabase = await createClient()
+  if (!supabase) throw new Error('Database connection failed')
+
+  const businesses = await getCachedBusinesses(userId, supabase)
 
   return <BusinessesClient initialBusinesses={businesses} />
 }

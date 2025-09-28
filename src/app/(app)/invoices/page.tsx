@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Search,
@@ -50,11 +50,11 @@ interface Invoice {
   status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled'
   total_amount: number
   businesses: {
-    name: string
+    business_name: string
     gst_number: string
   }
   customers: {
-    name: string
+    customer_name: string
     email: string
   }
   created_at: string
@@ -73,7 +73,13 @@ export default function InvoicesPage() {
     async (page = 1, searchTerm = search) => {
       try {
         setLoading(true)
-        const result = await getInvoices(searchTerm, page, 10)
+
+        // Add a small delay to show loading state, then fetch
+        const [result] = await Promise.all([
+          getInvoices(searchTerm, page, 10),
+          new Promise((resolve) => setTimeout(resolve, 100)), // Minimum loading time for UX
+        ])
+
         setInvoices(result.data)
         setTotalPages(result.totalPages)
         setTotal(result.total)
@@ -90,11 +96,11 @@ export default function InvoicesPage() {
             status: 'sent',
             total_amount: 59000,
             businesses: {
-              name: 'Acme Corporation',
+              business_name: 'Acme Corporation',
               gst_number: '29ABCDE1234F1Z5',
             },
             customers: {
-              name: 'John Doe',
+              customer_name: 'John Doe',
               email: 'john@example.com',
             },
             created_at: '2024-01-01T10:00:00Z',
@@ -107,11 +113,11 @@ export default function InvoicesPage() {
             status: 'draft',
             total_amount: 88500,
             businesses: {
-              name: 'Acme Corporation',
+              business_name: 'Acme Corporation',
               gst_number: '29ABCDE1234F1Z5',
             },
             customers: {
-              name: 'Tech Solutions Pvt Ltd',
+              customer_name: 'Tech Solutions Pvt Ltd',
               email: 'contact@techsolutions.com',
             },
             created_at: '2024-01-02T14:30:00Z',
@@ -131,10 +137,10 @@ export default function InvoicesPage() {
     fetchInvoices(1, search)
   }, [fetchInvoices, search])
 
-  const handleSearch = (value: string) => {
+  const handleSearch = useCallback((value: string) => {
     setSearch(value)
     setCurrentPage(1)
-  }
+  }, [])
 
   const handleDelete = async (invoiceId: string) => {
     if (
@@ -152,34 +158,43 @@ export default function InvoicesPage() {
     }
   }
 
-  const handlePageChange = (page: number) => {
-    fetchInvoices(page, search)
-  }
+  const handlePageChange = useCallback(
+    (page: number) => {
+      fetchInvoices(page, search)
+    },
+    [fetchInvoices, search]
+  )
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft':
-        return 'bg-gray-100 text-gray-800'
-      case 'sent':
-        return 'bg-blue-100 text-blue-800'
-      case 'paid':
-        return 'bg-green-100 text-green-800'
-      case 'overdue':
-        return 'bg-red-100 text-red-800'
-      case 'cancelled':
-        return 'bg-gray-100 text-gray-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }
+  const getStatusColor = useMemo(
+    () => (status: string) => {
+      switch (status) {
+        case 'draft':
+          return 'bg-gray-100 text-gray-800'
+        case 'sent':
+          return 'bg-blue-100 text-blue-800'
+        case 'paid':
+          return 'bg-green-100 text-green-800'
+        case 'overdue':
+          return 'bg-red-100 text-red-800'
+        case 'cancelled':
+          return 'bg-gray-100 text-gray-800'
+        default:
+          return 'bg-gray-100 text-gray-800'
+      }
+    },
+    []
+  )
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    })
-  }
+  const formatDate = useMemo(
+    () => (dateString: string) => {
+      return new Date(dateString).toLocaleDateString('en-IN', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+    },
+    []
+  )
 
   if (loading) {
     return <LoadingSpinner />
@@ -273,7 +288,7 @@ export default function InvoicesPage() {
                           <Building2 className="h-4 w-4 text-gray-400" />
                           <div>
                             <div className="font-medium">
-                              {invoice.businesses.name}
+                              {invoice.businesses.business_name}
                             </div>
                             <div className="text-sm text-gray-500 font-mono">
                               {invoice.businesses.gst_number}
@@ -287,7 +302,7 @@ export default function InvoicesPage() {
                           <User className="h-4 w-4 text-gray-400" />
                           <div>
                             <div className="font-medium">
-                              {invoice.customers.name}
+                              {invoice.customers.customer_name}
                             </div>
                             <div className="text-sm text-gray-500">
                               {invoice.customers.email}
