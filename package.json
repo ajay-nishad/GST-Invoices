@@ -78,6 +78,7 @@
     "razorpay": "^2.9.6",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-error-boundary": "^6.0.0",
     "react-hook-form": "^7.63.0",
     "react-redux": "^9.2.0",
     "recharts": "^3.2.1",
