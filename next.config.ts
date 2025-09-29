@@ -4,6 +4,26 @@ const nextConfig: NextConfig = {
   // Enable static generation for better performance (only in production)
   ...(process.env.NODE_ENV === 'production' && { output: 'standalone' }),
 
+  // Experimental features for better performance
+  experimental: {
+    // // Enable Partial Prerendering for faster navigation
+    // ppr: process.env.NODE_ENV === 'production',
+    // Enable React Compiler for better optimization
+    reactCompiler: true,
+    // Optimize package imports
+    optimizePackageImports: ['lucide-react', '@supabase/supabase-js'],
+  },
+
+  // Turbopack configuration (moved from experimental.turbo)
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
+    },
+  },
+
   // Image optimization
   images: {
     formats: ['image/webp', 'image/avif'],
@@ -15,6 +35,26 @@ const nextConfig: NextConfig = {
 
   // Better source maps for development debugging
   productionBrowserSourceMaps: process.env.NODE_ENV === 'development',
+
+  // Bundle analyzer for optimization
+  webpack: (config, { isServer, webpack }) => {
+    // Optimize bundle splitting
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+      }
+    }
+
+    // Add webpack plugins for better performance
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^pg-native$|^cloudflare:sockets$/,
+      })
+    )
+
+    return config
+  },
 
   // Headers for better caching (environment-aware)
   async headers() {

@@ -50,13 +50,17 @@ export function Sidebar({ className }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex flex-1 flex-col px-4 py-4 space-y-1">
+      <nav
+        className="flex flex-1 flex-col px-4 py-4 space-y-1"
+        data-sidebar-nav
+      >
         {navigation.map((item) => {
           const isActive = pathname === item.href
           return (
             <Link
               key={item.name}
               href={item.href}
+              prefetch={true}
               className={cn(
                 'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
                 isActive
@@ -81,6 +85,7 @@ export function Sidebar({ className }: SidebarProps) {
         {/* Pricing Link */}
         <Link
           href="/pricing"
+          prefetch={true}
           className={cn(
             'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
             pathname === '/pricing'

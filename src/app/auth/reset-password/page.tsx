@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -20,7 +20,7 @@ import {
 } from '@/lib/schemas/auth'
 import { createClient } from '@/lib/supabase/browser'
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -186,5 +186,30 @@ export default function ResetPasswordPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="w-full max-w-md">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <ResetPasswordForm />
+    </Suspense>
   )
 }

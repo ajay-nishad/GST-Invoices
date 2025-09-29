@@ -4,7 +4,6 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { useUser } from '@/providers/auth-provider'
-import { useState } from 'react'
 import {
   LayoutDashboard,
   Building2,
@@ -16,7 +15,6 @@ import {
   Receipt,
   X,
   Mail,
-  Loader2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
@@ -80,13 +78,9 @@ const navigation = [
 export function AppSidebar({ open, onClose }: AppSidebarProps) {
   const pathname = usePathname()
   const { user } = useUser()
-  const [loadingItem, setLoadingItem] = useState<string | null>(null)
 
-  const handleNavClick = (itemName: string) => {
-    setLoadingItem(itemName)
+  const handleNavClick = () => {
     onClose()
-    // Reset loading state after navigation starts
-    setTimeout(() => setLoadingItem(null), 2000)
   }
 
   const SidebarContent = () => (
@@ -103,36 +97,30 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
       <nav className="flex flex-1 flex-col px-4 py-4 space-y-1">
         {navigation.map((item) => {
           const isActive = pathname === item.href
-          const isLoading = loadingItem === item.name
-          const Icon = isLoading ? Loader2 : item.icon
 
           return (
             <Link
               key={item.name}
               href={item.href}
               prefetch={true}
-              onClick={() => handleNavClick(item.name)}
+              onClick={handleNavClick}
               className={cn(
                 'group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200',
                 isActive
                   ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
-                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900',
-                isLoading && 'opacity-70'
+                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
               )}
             >
-              <Icon
+              <item.icon
                 className={cn(
                   'mr-3 h-5 w-5 flex-shrink-0',
                   isActive
                     ? 'text-indigo-500'
-                    : 'text-gray-400 group-hover:text-gray-500',
-                  isLoading && 'animate-spin'
+                    : 'text-gray-400 group-hover:text-gray-500'
                 )}
               />
               <div className="flex-1">
-                <div className="font-medium">
-                  {isLoading ? 'Loading...' : item.name}
-                </div>
+                <div className="font-medium">{item.name}</div>
                 <div className="text-xs text-gray-500">{item.description}</div>
               </div>
             </Link>

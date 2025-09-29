@@ -43,6 +43,7 @@ export function Breadcrumbs() {
         <li>
           <Link
             href="/dashboard"
+            prefetch={true}
             className="text-gray-500 hover:text-gray-700 transition-colors"
           >
             <Home className="h-4 w-4" />
@@ -60,6 +61,7 @@ export function Breadcrumbs() {
             ) : (
               <Link
                 href={breadcrumb.href}
+                prefetch={true}
                 className="text-gray-500 hover:text-gray-700 transition-colors"
               >
                 {breadcrumb.label}

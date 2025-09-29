@@ -16,7 +16,9 @@ export function AuthButtons() {
     return (
       <div className="flex gap-2">
         <Button asChild>
-          <Link href="/dashboard">Dashboard</Link>
+          <Link href="/dashboard" prefetch={true}>
+            Dashboard
+          </Link>
         </Button>
         <SignOutButton variant="outline" />
       </div>
@@ -26,10 +28,14 @@ export function AuthButtons() {
   return (
     <div className="flex gap-2">
       <Button asChild>
-        <Link href="/auth/signin">Sign In</Link>
+        <Link href="/auth/signin" prefetch={true}>
+          Sign In
+        </Link>
       </Button>
       <Button asChild variant="outline">
-        <Link href="/auth/signup">Sign Up</Link>
+        <Link href="/auth/signup" prefetch={true}>
+          Sign Up
+        </Link>
       </Button>
     </div>
   )
